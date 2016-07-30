@@ -28,10 +28,25 @@ import Pusher from 'pusher-js';
 
 Pusher.logToConsole = true;
 
-let pusher = new Pusher('de504dc5763aeef9ff52', {
+const pusherBitStampID = 'de504dc5763aeef9ff52';
+const pusherStellarAtmosId = '5efc3e29331efb3f7f87';
+
+/* Pusher: BitStamp ################################################## */
+
+let pusherSA = new Pusher(pusherStellarAtmosId, {
+    cluster: 'eu',
     encrypted: true
 });
-let channel = pusher.subscribe('live_trades');
+
+let channelSA = pusherSA.subscribe('test-channel');
+
+
+/* Pusher: BitStamp ################################################## */
+
+let pusherBS = new Pusher(pusherBitStampID, {
+    encrypted: true
+});
+let channelBS = pusherBS.subscribe('live_trades');
 
 let NUMBER_OF_MESSAGE = 5;
 
@@ -60,7 +75,21 @@ class App extends Component {
 
     componentWillMount( ){
         let tickerPrice = 0;
-        channel.bind('trade', function(data){
+
+        channelSA.bind('my-event', function (data) {
+            const createdDate = Date();
+            Transactions.insert({
+                value : 0,
+                text : data.message,
+                date : createdDate,
+                transType: "Stellar"
+            });
+
+            console.log(data.message);
+            alert(data.message);
+        });
+
+        channelBS.bind('trade', function(data){
             // this.state = { bitCoinprice: data.price };
             // console.log("Price is here>>> " + data.price);
             const createdDate = Date();
